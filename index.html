@@ -150,7 +150,7 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const lt=o=>String(o).trim().replace(/^\(/,"").charAt(0).toUpperCase();
 const byId={}; D.groups.forEach(g=>g.q.forEach(q=>{byId[q.id]=q;q._g=g}));
 const nq=D.groups.reduce((a,g)=>a+g.q.length,0), ng=D.groups.filter(g=>g.q.length>1).length;
-const nsrc=new Set(D.groups.flatMap(g=>g.q.flatMap(q=>q.src.map(s=>s.t+"|"+s.n)))).size;
+const nsrc=new Set(D.groups.flatMap(g=>g.q.flatMap(q=>q.src.map(s=>s.f||s.t+"|"+s.n)))).size;
 $("#tally").innerHTML=`<span><b>${nq}</b> questions</span><span><b>${ng}</b> groups of similar questions</span><span><b>${nsrc}</b> source files</span><span class="score" id="score"></span>`;
 $("#lede").textContent=`Clicker, interactive and TA-review questions made for the GI anatomy lectures (2019–2026), in the order this year's lectures teach them. Similar questions sit together in a shaded box. Tap an answer to see why it is right, why the others are wrong, and the slides that teach it.`;
 
