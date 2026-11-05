@@ -486,7 +486,7 @@ document.addEventListener("click",e=>{
   if(t.classList.contains("again")&&el){ delete done[el.dataset.id]; store.set(KEY+"-done",done); resetCard(el); score(); return; }
   if(t.classList.contains("star")&&el){ const id=el.dataset.id; if(stars[id]) delete stars[id]; else stars[id]=1; store.set(KEY+"-stars",stars);
     t.setAttribute("aria-pressed",!!stars[id]); t.textContent=stars[id]?"★":"☆"; el.classList.toggle("starred",!!stars[id]); return; }
-  if(FEAT){ if(t.classList.contains("pstar")){ togglePic(t); return; } if(t.tagName==="IMG"&&t.closest(".pimg")&&!t.closest("#gal")&&!t.closest("#lb2")){ openViewer(t); return; } }
+  if(FEAT){ if(t.classList.contains("pstar")){ togglePic(t); return; } if(t.tagName==="IMG"&&t.closest(".pimg")&&!t.closest("#lb2")){ openViewer(t); return; } }
   else if(t.tagName==="IMG"&&(t.closest(".slides")||t.closest(".sumbody")||t.closest(".primer"))){ const lb=document.createElement("div"); lb.id="lb"; lb.innerHTML=`<img src="${t.getAttribute("src")}" alt="">`; lb.onclick=()=>lb.remove(); document.body.appendChild(lb); }
 });
 document.addEventListener("keydown",e=>{
