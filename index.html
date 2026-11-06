@@ -101,8 +101,8 @@ section.sec{padding-top:26px}
 .done-hide{display:none!important}
 #lb{position:fixed;inset:0;z-index:50;background:var(--veil);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));cursor:zoom-out}
 #lb img{max-width:100%;max-height:100%;background:#fff;border-radius:4px}
-body.toponly .q:not(.top){display:none}
-body.toponly .grp:not(:has(.q.top)),body.toponly section.sec:not(:has(.q.top)){display:none}
+body.toponly .q:not(.top):not(.shown){display:none}
+body.toponly .grp:not(:has(.q.top,.q.shown)),body.toponly section.sec:not(:has(.q.top)){display:none}
 body.toponly .grp{background:none;padding:0;margin:0}
 body.toponly .ghead{display:none}
 body.toponly .grp .q:last-child{border-bottom:1px solid var(--rule)}
@@ -158,7 +158,17 @@ body.nosum .sum,body.staronly .sum,body.searching .sum{display:none}
 .primer b{font-weight:600;color:var(--accent)}
 .primer .pq{font-family:var(--sans);font-size:.76rem;color:var(--ink-3);margin-top:8px}
 body.noprimer .primer,body.searching .primer{display:none}
-body.toponly .unit:not(:has(.q.top)),body.staronly .unit:not(:has(.q.starred)){display:none}
+body.toponly .unit:not(:has(.q.top,.q.shown)),body.staronly .unit:not(:has(.q.starred)){display:none}
+/* Nov 5 (anatomy, D.meta.more): in Top mode, the bar under each part's questions adds more of that part's questions */
+.morebar{display:none}
+body.toponly .morebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 6px;padding:8px 12px;border:1px dashed var(--rule-2);border-radius:8px;font-family:var(--sans)}
+body.toponly.staronly .morebar,body.searching .morebar{display:none}
+.morebar .mlab{font-size:.82rem;color:var(--ink-3);margin-right:auto;font-variant-numeric:tabular-nums}
+.morebar .btn{padding:5px 12px;font-size:.8rem}
+.morebar .mbtn[data-m="+"]{border-color:var(--accent);color:var(--accent)}
+.morebar .mbtn[data-m="+"]:hover{background:var(--accent);color:var(--paper)}
+body.toponly .q.shown .qn::after{content:"extra";margin-left:8px;font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:1px 7px;vertical-align:1px}
+.q{scroll-margin-top:64px}
 body.toponly .primer .pq,body.staronly .primer .pq{display:none}
 /* Lecture notes (Nov 3 v2): numbered sections and parts; each part's notes are followed by its questions */
 .lout{margin:14px 0 8px;padding:12px 16px;border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:0 0 8px 8px;background:var(--panel);font-family:var(--sans);font-size:.86rem}
@@ -301,6 +311,7 @@ span.hlu{text-decoration:underline;text-decoration-color:var(--red);text-decorat
 const D=window.GIQ, KEY="gi-anat", FEAT=!!(D.meta&&D.meta.feat);
 const store={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const FOLD=!!(D.meta&&D.meta.fold), FD=FOLD?(store.get(KEY+"-fold")||{}):{};  // Nov 5: closed notes parts, {"<lecture>:<part>":1}
+const MORE=!!(D.meta&&D.meta.more), MS=MORE?(store.get(KEY+"-more")||{}):{}, MSTEP=2;  // Nov 5: extra questions shown per part in Top mode, {"<lecture>:<part>":n}
 const done=store.get(KEY+"-done")||{}, stars=store.get(KEY+"-stars")||{};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -458,6 +469,21 @@ function hlTools(){ const T=$("#hltools"); if(!FEAT) return; const bl=selBlocks(
   const rr=getSelection().getRangeAt(0).getBoundingClientRect(); T.hidden=false; const w=T.offsetWidth, h=T.offsetHeight;
   let top=rr.top-h-8; if(top<8) top=rr.bottom+8; T.style.top=top+"px"; T.style.left=Math.min(Math.max(8,rr.left+rr.width/2-w/2),innerWidth-w-8)+"px"; }
 
+// ---- Nov 5 (anatomy, D.meta.more): "+ 2 more" under each part's questions in Top mode. Extras come in the builder's rank
+// order (q.r: the part's remaining boxes first, then other versions) and appear in their own place among the part's questions.
+function moreBar(pk,ug){ const tot=ug.reduce((a,g)=>a+g.q.length,0), top=ug.reduce((a,g)=>a+g.q.filter(q=>q.t).length,0); if(tot<=top) return "";
+  return `<div class="morebar nohl" data-pk="${esc(pk)}" data-tot="${tot}" data-top="${top}"><span class="mlab"></span><button class="btn mbtn" type="button" data-m="+"></button><button class="btn mbtn" type="button" data-m="all"></button><button class="btn mbtn" type="button" data-m="0"></button></div>`; }
+function applyMore(bar){ const pk=bar.dataset.pk, tot=+bar.dataset.tot, top=+bar.dataset.top, x=Math.min(MS[pk]||0,tot-top), left=tot-top-x;
+  bar.closest(".unit").querySelectorAll("article.q:not(.top)").forEach(el=>el.classList.toggle("shown",byId[el.dataset.id].r<top+x));
+  const [bp,ba,b0]=bar.querySelectorAll(".mbtn");
+  bar.querySelector(".mlab").textContent=x?`Showing ${top+x} of the ${tot} questions on this part`:`Top ${top} of the ${tot} questions on this part`;
+  bp.hidden=!left; bp.textContent=`+ ${Math.min(MSTEP,left)} more`;
+  ba.hidden=left<=MSTEP; ba.textContent=`Show all ${tot}`;
+  b0.hidden=!x; b0.textContent=`Back to top ${top}`; }
+function lecCount(sec){ const s=sec.querySelector(".sechead .ntop"); if(!s) return;
+  const k=sec.querySelectorAll("article.q").length, t=sec.querySelectorAll("article.q.top").length, x=sec.querySelectorAll("article.q.shown").length;
+  s.textContent=x?`top ${t} + ${x} more of ${k}`:`top ${t} of ${k}`; }
+
 // ---- build the page
 let toc=`<h3>Lectures</h3><ol>`, body="";
 for(const l of D.lectures){
@@ -477,13 +503,14 @@ for(const l of D.lectures){
       if(u.pn){ let sh="";
         if(u.sn!==lastS){ lastS=u.sn; sh=`<h3 class="lsec" id="${l.id}-s${u.sn}"><span class="sn">Section ${u.sn}</span>${u.s}</h3>`; }
         const pk=`${l.id}:${u.pn}`, ph=`<span class="pn">Part ${u.pn}</span><h3>${u.h}</h3>`, pb=`${u.p}<div class="pq">Practice on this part: ${qs}</div>`;
-        inner+=`<div class="unit" id="${l.id}-p${u.pn}">${sh}`+(FOLD?`<details class="primer notes fold" data-pk="${pk}" data-hk="p:${pk}"${FD[pk]?"":" open"}><summary>${ph}</summary><div class="pbody">${pb}</div></details>`:`<div class="primer notes" data-hk="p:${pk}">${ph}${pb}</div>`)+`${qhtml}</div>`; }
+        inner+=`<div class="unit" id="${l.id}-p${u.pn}">${sh}`+(FOLD?`<details class="primer notes fold" data-pk="${pk}" data-hk="p:${pk}"${FD[pk]?"":" open"}><summary>${ph}</summary><div class="pbody">${pb}</div></details>`:`<div class="primer notes" data-hk="p:${pk}">${ph}${pb}</div>`)+`${qhtml}${MORE?moreBar(pk,ug):""}</div>`; }
       else inner+=`<div class="unit"><div class="primer"><span class="pn">Step ${++s} of ${US.length}</span><h3>${u.h}</h3>${u.p}<div class="pq">Next: ${qs}</div></div>${qhtml}</div>`; } }
   else for(const g of gs) inner+=box(g);
   toc+=`<li><a href="#${l.id}"><span class="id">${tag}</span>${esc(l.t)}</a><span class="n"><span class="nall">${k}</span><span class="ntop">${nt}</span></span></li>`;
   body+=`<section class="sec" id="${l.id}"><div class="sechead"><h2><span class="id">${esc(l.id)}</span> ${esc(l.t)}</h2><span class="n"><span class="nall">${k} questions</span><span class="ntop">top ${nt} of ${k}</span></span></div>${sumPanel(l)}${inner}</section>`;
 }
 $("#toc").innerHTML=toc+`</ol>`; $("#body").innerHTML=body;
+if(MORE){ document.querySelectorAll(".morebar").forEach(applyMore); document.querySelectorAll("section.sec").forEach(lecCount); }
 if(FEAT){ decorate($("#body")); for(const k of Object.keys(HL)){ const b=document.querySelector(`[data-hk="${CSS.escape(k)}"]`); if(b) applyHL(b); } }
 if(location.hash){ const el=document.getElementById(decodeURIComponent(location.hash.slice(1))); if(el) requestAnimationFrame(()=>el.scrollIntoView()); }
 document.querySelectorAll("article.q").forEach(el=>{ const d=done[el.dataset.id]; if(d) answer(el,byId[el.dataset.id],(d==="ok"||d==="seen")?null:d); });
@@ -492,6 +519,13 @@ score();
 // ---- clicks
 document.addEventListener("click",e=>{
   const t=e.target, el=t.closest&&t.closest("article.q");
+  const mb=MORE&&t.closest&&t.closest(".mbtn");
+  if(mb){ const bar=mb.closest(".morebar"), unit=bar.closest(".unit"), pk=bar.dataset.pk, tot=+bar.dataset.tot, top=+bar.dataset.top;
+    const cur=Math.min(MS[pk]||0,tot-top), nx=mb.dataset.m==="+"?Math.min(cur+MSTEP,tot-top):mb.dataset.m==="all"?tot-top:0, before=new Set(unit.querySelectorAll("article.q.shown"));
+    if(nx) MS[pk]=nx; else delete MS[pk]; store.set(KEY+"-more",MS); applyMore(bar); lecCount(bar.closest("section.sec"));
+    if(nx>cur){ const f=[...unit.querySelectorAll("article.q.shown")].find(x=>!before.has(x)); if(f) f.scrollIntoView({block:"nearest"}); }
+    else bar.scrollIntoView({block:"nearest"});
+    return; }
   if(t.closest(".opt")&&el&&!t.closest(".opt").disabled){ const q=byId[el.dataset.id], p=t.closest(".opt").dataset.l; done[q.id]=(q.g||[]).includes(p)?"ok":p; store.set(KEY+"-done",done); answer(el,q,p); score(); return; }
   if(t.classList.contains("showans")&&el){ const q=byId[el.dataset.id]; done[q.id]="seen"; store.set(KEY+"-done",done); answer(el,q,null); return; }
   if(t.classList.contains("again")&&el){ delete done[el.dataset.id]; store.set(KEY+"-done",done); resetCard(el); score(); return; }
@@ -528,7 +562,7 @@ if(FOLD){ // notes parts: remember which are closed; a drag-select inside the ti
   window.addEventListener("hashchange",openHash); document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest(".lout a"); if(a&&a.getAttribute("href")===location.hash) setTimeout(openHash,0); }); }
 $("#topcnt").textContent="("+D.groups.reduce((a,g)=>a+g.q.filter(q=>q.t).length,0)+")";
 const NOTES=UNITS.some(u=>u.pn), PW=NOTES?["Hide notes","Show notes"]:["Hide teaching paragraphs","Show teaching paragraphs"];
-if(UNITS.length) $("#toponly").title=`At least two questions from every ${NOTES?"part":"step"} of each lecture (more from the most-tested ${NOTES?"parts":"steps"}), the clearest version of each`;
+if(UNITS.length) $("#toponly").title=`At least two questions from every ${NOTES?"part":"step"} of each lecture (more from the most-tested ${NOTES?"parts":"steps"}), the clearest version of each`+(MORE?". Under each part, “+ 2 more” adds more of that part's questions":"");
 $("#toponly").onclick=function(){ const on=this.getAttribute("aria-pressed")!=="true"; this.setAttribute("aria-pressed",on); document.body.classList.toggle("toponly",on); try{localStorage.setItem(KEY+"-top",on?"1":"0")}catch(e){} };
 try{ if(/[?&]top\b/.test(location.search)||localStorage.getItem(KEY+"-top")==="1") $("#toponly").click(); }catch(e){ if(/[?&]top\b/.test(location.search)) $("#toponly").click(); }
 if(UNITS.length){ const b=$("#nosum"); b.hidden=false; b.textContent=PW[0];
