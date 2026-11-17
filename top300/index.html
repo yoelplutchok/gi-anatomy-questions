@@ -301,6 +301,10 @@ span.hlu{text-decoration:underline;text-decoration-color:var(--red);text-decorat
 body.topn article.q>header .qn{font-size:.95rem;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:1px 9px}
 body.topn .t2body article.q>header .qn{font-size:.76rem;font-weight:600;color:var(--ink-3);background:none;padding:0}
 .lede:empty{display:none}
+/* Nov 17: rapid-review snippet at the top of each part dropdown: the printed box as a picture, red underlines on top */
+.rrw{margin:2px 0 18px}.rrb{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;margin:0 0 10px}
+.rrf{position:relative;max-width:100%;background:#fff;box-shadow:0 0 0 1px var(--rule-2)}.rrf img{display:block;width:100%;height:auto}
+.rrf i{position:absolute;height:2px;background:#d42a20;border-radius:1px;pointer-events:none}
 </style>
 
 </head>
@@ -328,7 +332,7 @@ body.topn .t2body article.q>header .qn{font-size:.76rem;font-weight:600;color:va
 </main>
 <button class="btn floatreset" id="reset2" type="button" hidden>Clear my answers</button>
 
-<script src="data.js?v=535b371827"></script>
+<script src="data.js?v=a25cd4b03b"></script>
 <script>
 (function(){
 const D=window.GIQ, KEY="gi-anat-top300", FEAT=!!(D.meta&&D.meta.feat), TOPN=(D.meta&&D.meta.top)||0;
@@ -523,7 +527,7 @@ for(const l of D.lectures){
       else { qhtml=ug.map(box).join(""); qs=n===1?"question "+tag+"·"+k0:"questions "+tag+"·"+k0+"–"+tag+"·"+(k0+n-1); }
       if(u.pn){ let sh="";
         if(u.sn!==lastS){ lastS=u.sn; sh=`<h3 class="lsec" id="${l.id}-s${u.sn}"><span class="sn">Section ${u.sn}</span>${u.s}</h3>`; }
-        const ph=`<span class="pn">Part ${u.pn}</span><h3>${u.h}</h3>`, pb=`${u.p}<div class="pq">${TIER?qs:"Practice on this part: "+qs}</div>`;
+        const ph=`<span class="pn">Part ${u.pn}</span><h3>${u.h}</h3>`, pb=`${u.rr||""}${u.p}<div class="pq">${TIER?qs:"Practice on this part: "+qs}</div>`;
         inner+=`<div class="unit" id="${l.id}-p${u.pn}">${sh}`+(FOLD?`<details class="primer notes fold" data-pk="${pk}" data-hk="p:${pk}"${FD[pk]?"":" open"}><summary>${ph}</summary><div class="pbody">${pb}</div></details>`:`<div class="primer notes" data-hk="p:${pk}">${ph}${pb}</div>`)+`${qhtml}</div>`; }
       else inner+=`<div class="unit"><div class="primer"><span class="pn">Step ${++s} of ${US.length}</span><h3>${u.h}</h3>${u.p}<div class="pq">Next: ${qs}</div></div>${qhtml}</div>`; } }
   else for(const g of gs) inner+=box(g);
