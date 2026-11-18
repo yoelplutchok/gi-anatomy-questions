@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>GI Anatomy: Clicker Questions</title>
+<title>GI Anatomy: Clicker &amp; Faculty Questions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
@@ -302,7 +302,7 @@ body.topn article.q>header .qn{font-size:.95rem;color:var(--ink);background:var(
 .rrw{margin:12px 0 6px}.rrw .lab{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:6px}.rrb{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;margin:0 0 10px}
 .rrf{position:relative;max-width:100%;background:#fff;box-shadow:0 0 0 1px var(--rule-2)}.rrf img{display:block;width:100%;height:auto}
 .rrf i{position:absolute;height:2px;background:#d42a20;border-radius:1px;pointer-events:none}
-/* Nov 17 clicker page filters: 2026 only (questions from a 2026 clicker session) and Kahoot only (the last section) */
+/* Nov 17 clicker page filters: 2026 only (questions from 2026 faculty material) and Kahoot only (the last section) */
 body.y26only article.q:not(.y26){display:none}
 body.y26only .unit:not(:has(.q.y26)),body.y26only section.sec:not(:has(.q.y26)){display:none}
 .n26{display:none}body.y26only .n26{display:inline}body.y26only .nall{display:none}
@@ -316,12 +316,12 @@ body.y26only .primer .pq,body.konly .lout{display:none}
 <main class="wrap">
 <nav class="homes"><a class="home" href="https://yoelplutchok.github.io/gi/top300/">← GI Top 300 pages</a></nav><style>.homes{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:20px}.home{font-family:var(--sans);font-size:.84rem;font-weight:600;color:var(--accent);text-decoration:none}.home:hover{text-decoration:underline}</style><header class="mast">
   <div class="eyebrow">GI exam · Mon Nov 23 2026 · Clinical Anatomy &amp; Embryology I</div>
-  <h1>GI Anatomy: Clicker Questions</h1>
+  <h1>GI Anatomy: Clicker &amp; Faculty Questions</h1>
   <p class="lede" id="lede"></p>
   <div class="tally" id="tally"></div>
   <div class="controls">
     <button class="btn" id="toponly" type="button" aria-pressed="false" title="One question from each group of similar questions (the clearest, newest version), at most 50 per lecture; groups asked most often across years come first">Top questions only <span class="cnt" id="topcnt"></span></button>
-    <button class="btn" id="y26only" type="button" aria-pressed="false" title="Only questions asked in a 2026 clicker or interactive session (every campus)">2026 only <span class="cnt">(210)</span></button>
+    <button class="btn" id="y26only" type="button" aria-pressed="false" title="Only 2026 faculty material: this year's clickers, interactive sessions, practice questions, supplemental sessions and the Kahoot (every campus)">2026 only <span class="cnt">(282)</span></button>
     <button class="btn" id="konly" type="button" aria-pressed="false" title="Only the faculty GI-development Kahoot">Kahoot only <span class="cnt">(21)</span></button>
     <button class="btn" id="staronly" type="button" aria-pressed="false">★ Starred only</button>
     <button class="btn" id="nosum" type="button" aria-pressed="false" hidden>Hide summaries</button>
@@ -338,7 +338,7 @@ body.y26only .primer .pq,body.konly .lout{display:none}
 </main>
 <button class="btn floatreset" id="reset2" type="button" hidden>Clear my answers</button>
 
-<script src="data.js?v=57970833c9"></script>
+<script src="data.js?v=438415d60b"></script>
 <script>
 (function(){
 const D=window.GIQ, KEY="gi-anat-clickers", FEAT=!!(D.meta&&D.meta.feat), TOPN=(D.meta&&D.meta.top)||0, CK=D.meta.clk;
@@ -355,7 +355,7 @@ const nq=D.groups.reduce((a,g)=>a+g.q.length,0), ng=D.groups.filter(g=>g.q.lengt
 const nsrc=new Set(D.groups.flatMap(g=>g.q.flatMap(q=>q.src.map(s=>s.f||s.t+"|"+s.n)))).size;
 $("#tally").innerHTML=`<span><b>${nq}</b> questions</span>${D.meta&&D.meta.uw?`<span><b>${D.groups.reduce((a,g)=>a+g.q.filter(q=>q.tier===1).length,0)}</b> core · <b>${D.groups.reduce((a,g)=>a+g.q.filter(q=>q.tier===2).length,0)}</b> more</span>`:`<span><b>${ng}</b> groups of similar questions</span>`}<span><b>${nsrc}</b> source files</span><span class="score" id="score"></span>`;
 $("#lede").textContent="";
-document.body.classList.add("topn"); $("#tally").innerHTML=`<span><b>${CK.n}</b> clicker questions, numbered</span><span><b>${CK.n26}</b> of them from 2026</span><span><b>${CK.nk}</b> Kahoot questions</span><span><b>${CK.nsrc}</b> clicker sessions</span><span class="score" id="score"></span>`;
+document.body.classList.add("topn"); $("#tally").innerHTML=`<span><b>${CK.n}</b> clicker &amp; faculty questions, numbered</span><span><b>${CK.n26}</b> of them from 2026</span><span><b>${CK.nk}</b> Kahoot questions</span><span><b>${CK.nsrc}</b> faculty sessions &amp; sets</span><span class="score" id="score"></span>`;
 
 function card(q,n,note){
   const badges=(note||"")+q.src.slice(0,3).map(s=>`<span class="badge" title="${esc(s.n)}${s.sl?" · slide "+s.sl:""}">${esc(s.t)}</span>`).join("")+(q.src.length>3?`<span class="badge">+${q.src.length-3}</span>`:"");
@@ -529,7 +529,7 @@ for(const l of D.lectures){
         const cnt=(kd,w)=>{ const c=more.filter(q=>q.kind===kd).length; return c?c+" "+w+(c>1&&kd==="repeat"?"s":""):""; };
         const kinds=[cnt("repeat","repeat"),cnt("harder","harder"),cnt("minor","other")].filter(Boolean).join(", ");
         qhtml=core.map(q=>card(q,num[q.id])).join("")+(more.length?`<div class="t2${T2[pk]?" open":""}" data-pk="${esc(pk)}"><button class="t2btn nohl" type="button" aria-expanded="${!!T2[pk]}">More questions on this part <span class="t2n">${more.length} · ${kinds}</span></button><div class="t2body"${T2[pk]?"":" hidden"}>${more.map(q=>card(q,num[q.id],note(q))).join("")}</div></div>`:"");
-        qs=`${u.pn==="K"?"Kahoot question":"Clicker question"}${core.length>1?"s":""} ${num[core[0].id]}${core.length>1?"–"+num[core[core.length-1].id]:""} below`; }
+        qs=`${u.pn==="K"?"Kahoot question":"Question"}${core.length>1?"s":""} ${num[core[0].id]}${core.length>1?"–"+num[core[core.length-1].id]:""} below`; }
       else { qhtml=ug.map(box).join(""); qs=n===1?"question "+tag+"·"+k0:"questions "+tag+"·"+k0+"–"+tag+"·"+(k0+n-1); }
       if(u.pn){ let sh="";
         if(u.sn!==lastS){ lastS=u.sn; sh=`<h3 class="lsec" id="${l.id}-s${u.sn}"><span class="sn">Section ${u.sn}</span>${u.s}</h3>`; }
@@ -538,7 +538,7 @@ for(const l of D.lectures){
       else inner+=`<div class="unit"><div class="primer"><span class="pn">Step ${++s} of ${US.length}</span><h3>${u.h}</h3>${u.p}<div class="pq">Next: ${qs}</div></div>${qhtml}</div>`; } }
   else for(const g of gs) inner+=box(g);
   toc+=`<li><a href="#${l.id}"><span class="id">${tag}</span>${esc(l.t)}</a><span class="n"><span class="nall">${k}</span><span class="n26">${gs.reduce((a,g)=>a+g.q.filter(q=>q.y26).length,0)}</span></span></li>`;
-  body+=`<section class="sec" id="${l.id}"><div class="sechead"><h2><span class="id">${esc(l.id)}</span> ${esc(l.t)}</h2><span class="n">${TIER?`${l.id==="ANAT-Kahoot"?nc+" Kahoot questions":nc+" clicker questions · "+gs.reduce((a,g)=>a+g.q.filter(q=>q.y26).length,0)+" from 2026"}`:`<span class="nall">${k} questions</span><span class="ntop">top ${nt} of ${k}</span>`}</span></div>${sumPanel(l)}${inner}</section>`;
+  body+=`<section class="sec" id="${l.id}"><div class="sechead"><h2><span class="id">${esc(l.id)}</span> ${esc(l.t)}</h2><span class="n">${TIER?`${l.id==="ANAT-Kahoot"?nc+" Kahoot questions":nc+" questions · "+gs.reduce((a,g)=>a+g.q.filter(q=>q.y26).length,0)+" from 2026"}`:`<span class="nall">${k} questions</span><span class="ntop">top ${nt} of ${k}</span>`}</span></div>${sumPanel(l)}${inner}</section>`;
 }
 $("#toc").innerHTML=toc+`</ol>`; $("#body").innerHTML=body;
 if(FEAT){ decorate($("#body")); for(const k of Object.keys(HL)){ const b=document.querySelector(`[data-hk="${CSS.escape(k)}"]`); if(b) applyHL(b); } }
